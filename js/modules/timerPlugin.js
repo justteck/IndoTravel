@@ -1,5 +1,5 @@
 // create timer
-const container = document.querySelector('div[data-timesr-deadline]');
+const container = document.querySelector('div[data-timer-deadline]');
 const deadline = container?.dataset.timerDeadline;
 
 const renderTimerBlock = (deadline) => {

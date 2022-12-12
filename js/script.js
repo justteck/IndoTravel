@@ -1,13 +1,9 @@
 import {timer} from './modules/timer.js';
-
-// for plugin
-// import {runTimerPlugin} from './modules/timerPlugin.js';
+import './modules/acc.js';
+import './modules/burgerMenu.js';
 
 const init = () => {
   timer();
-
-  // run plugin
-  // runTimerPlugin();
 };
 
 init();
