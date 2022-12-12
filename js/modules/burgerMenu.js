@@ -5,11 +5,12 @@ const navigation = document.querySelector('.header__menu');
 
 const menuToggle = () => navigation.classList.toggle('header__menu_active');
 const menuClose = () => navigation.classList.remove('header__menu_active');
-
-document.addEventListener('click', ({target}) => {
+const menuControl = ({target}) => {
   if (target === menuBtn) {
     menuToggle();
   } else {
     menuClose();
   }
-});
+};
+
+document.addEventListener('click', menuControl);
