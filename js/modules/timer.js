@@ -1,11 +1,11 @@
 // timer
 
 const timerBlock = document.querySelector('.timer');
-
 const timerBlockDays = timerBlock.querySelector('.timer__count_days');
 const timerBlockHours = timerBlock.querySelector('.timer__count_hours');
 const timerBlockMinutes = timerBlock.querySelector('.timer__count_minutes');
 
+// funcs
 const timer = () => {
   const deadline = timerBlock.dataset.timerDeadline;
 

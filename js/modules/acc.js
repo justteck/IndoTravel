@@ -4,6 +4,7 @@ const accBtns = document.querySelectorAll('.travel__item-title');
 const accItems = document.querySelectorAll('.travel__item');
 const accTextWrappers = document.querySelectorAll('.travel__item-text-wrapper');
 
+// funcs
 const deactivateItems = () =>
   accItems.forEach(item => {
     item.classList.remove('travel__item_active');
@@ -35,7 +36,7 @@ const controlAccItems = (btnIndex) => {
   });
 };
 
-
+// execute
 deactivateItems();
 
 accBtns.forEach((btn, btnIndex) => {
