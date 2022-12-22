@@ -94,6 +94,6 @@ const controlDirection = changePlaneDirection();
 window.addEventListener('resize', controlPlaneIcon);
 
 window.addEventListener('scroll', () => {
-  requestAnimationFrame(controlDirection);
-  requestAnimationFrame(calcPositionPlane);
+  controlDirection();
+  calcPositionPlane();
 });

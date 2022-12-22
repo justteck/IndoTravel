@@ -1,4 +1,6 @@
 // timer
+import {makeCorrectEndings as makeCorrectUnits} from './correctDeclension.js';
+
 
 const timerBlock = document.querySelector('.timer');
 const timerBlockDays = timerBlock.querySelector('.timer__count_days');
@@ -13,21 +15,6 @@ const timer = () => {
     const twoDigitsTime = (time < 10) ? `0${time}` : time;
 
     return twoDigitsTime;
-  };
-
-  const makeCorrectUnits = (number, one, two, five) => {
-    number %= 100;
-    if (number >= 5 && number <= 20) {
-      return five;
-    }
-    number %= 10;
-    if (number === 1) {
-      return one;
-    }
-    if (number >= 2 && number <= 4) {
-      return two;
-    }
-    return five;
   };
 
   const getTimeRemaining = () => {
