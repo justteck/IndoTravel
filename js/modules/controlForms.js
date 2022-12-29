@@ -1,11 +1,15 @@
 // count total price
+
+// imports
 import {makeCorrectEndings} from './correctDeclension.js';
+import {fetchRequest} from './fetchRequest.js';
 
 // forms
 const tourForm = document.querySelector('.tour__form');
 const reservationForm = document.querySelector('.reservation__form');
+const footerForm = document.querySelector('.footer__form');
 
-// total price el + total date and people el
+// total price element + total date and people elements
 const totalPriceElement = document.querySelector('.reservation__price');
 const totalTourParametersElement = document.querySelector('.reservation__data');
 
@@ -13,11 +17,28 @@ const totalTourParametersElement = document.querySelector('.reservation__data');
 let tempCurrentPeople;
 let tempCurrentDates;
 
-
 // FUNCS
-const resetFormTotalParameters = () => {
+// set defaults for forms
+const setDefaultFormParameters = () => {
   totalPriceElement.innerHTML = '';
   totalTourParametersElement.innerHTML = '';
+
+  const selects = document.querySelectorAll('.reservation__select');
+  selects.forEach(item => {
+    item.required = true;
+  });
+
+  const formName = document.querySelector('.reservation__input_name');
+  formName.required = true;
+  formName.name = 'name';
+
+  const formPhone = document.querySelector('#reservation__phone');
+  formPhone.required = true;
+  formPhone.type = 'tel';
+  formPhone.name = 'phone';
+
+  const footerInput = document.querySelector('.footer__input');
+  footerInput.name = 'mail';
 };
 
 // get data from db
@@ -76,6 +97,7 @@ const renderPeopleOptions = (array, select) => {
 
   select.append(createOption('Количество человек'));
   select.children[0].disabled = true;
+  select.children[0].value = '';
 
   while (current <= max) {
     select.append(createOption(current));
@@ -86,10 +108,72 @@ const renderPeopleOptions = (array, select) => {
 const renderDateOptions = (array, select) => {
   select.append(createOption('Выберите дату'));
   select.children[0].disabled = true;
+  select.children[0].value = '';
 
   array.forEach(obj => {
     select.append(createOption(obj['date']));
   });
+};
+
+// modal control
+const closeModal = (modalWindow) => {
+  const hideModal = ({target}) => {
+    if (target.matches('.button-modal') ||
+        target.matches('.modal')) {
+      modalWindow.classList.remove('modal-active');
+
+      document.removeEventListener('click', hideModal);
+    }
+  };
+
+  document.addEventListener('click', hideModal);
+};
+
+// fetch callback
+const showResponseForm = (err, data) => {
+  const modalOK = document.querySelector('.modal-ok');
+  const modalFail = document.querySelector('.modal-fail');
+  if (err) {
+    console.warn(err, data);
+
+    modalFail.classList.add('modal-active');
+    closeModal(modalFail);
+
+    return;
+  }
+
+  modalOK.classList.add('modal-active');
+  closeModal(modalOK);
+};
+
+const showResponseFooter = (err, data) => {
+  const footerFormTitle = document.querySelector('.footer__form-title');
+  const footerFormText = document.querySelector('.footer__text');
+  const footerInput = document.querySelector('.footer__input-wrap');
+
+  const resizeBlock = () => {
+    footerInput.style.display = 'none';
+    footerForm.style.minHeight = `${footerForm.offsetHeight}px`;
+    footerForm.style.minWidth = `${footerForm.offsetWidth}px`;
+  };
+
+  if (err) {
+    console.warn(err, data);
+
+    footerFormTitle.textContent = 'Что-то пошло не так =(';
+    footerFormText.textContent = `При отправке произошла ошибка.
+    Попробуйте отправить данные позже.`;
+
+    resizeBlock();
+
+    return;
+  }
+
+  footerFormTitle.textContent = 'Ваша заявка успешно отправлена';
+  footerFormText.textContent =
+    `Наши менеджеры свяжутся с Вами в течение 3-х рабочих дней`;
+
+  resizeBlock();
 };
 
 // forms control
@@ -185,6 +269,53 @@ const formControl = (form) => {
       totalPriceElement.textContent = `${tourObj[0].price * currentPeople} ₽`;
     }
   });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    const data = Object.fromEntries(formData);
+
+    fetchRequest('https://jsonplaceholder.typicode.com/posts', {
+      method: 'post',
+      callback: showResponseForm,
+      body: {
+        title: 'Booking',
+        body: {
+          name: data.name,
+          phone: data.phone,
+          date: data.dates,
+          people: data.people,
+        },
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  });
+};
+
+const footerFormControl = () => {
+  footerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const data = footerForm.mail.value;
+
+    fetchRequest('https://jsonplaceholder.typicode.com/posts', {
+      method: 'post',
+      callback: showResponseFooter,
+      body: {
+        title: 'Mail',
+        body: {
+          mail: data,
+        },
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  });
 };
 
 const scrollToSecondForm = () => {
@@ -204,7 +335,7 @@ const scrollToSecondForm = () => {
 
 
 // execute
-resetFormTotalParameters();
+setDefaultFormParameters();
 
 setFormOptions(
     tourForm,
@@ -232,6 +363,7 @@ setFormOptions(
 
 formControl(tourForm);
 formControl(reservationForm);
+footerFormControl();
 
 formFieldsControl(tourForm, reservationForm);
 formFieldsControl(reservationForm, tourForm);

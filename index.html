@@ -11,6 +11,7 @@
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/timer.css">
+  <link rel="stylesheet" href="css/modal.css">
   <script type="module" src="js/script.js"></script>
   <title>Indonesia</title>
 </head>
@@ -345,5 +346,34 @@
       </div>
     </div>
   </footer>
+
+  <!-- modal -->
+  <div class="modal modal-ok">
+    <div class="modal-container">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Ваша заявка успешно отправлена</h2>
+        </div>
+        <div class="modal-body">    
+          <p>Наши менеджеры свяжутся с Вами в течение 3-х рабочих дней</p>
+        </div>
+        <button type="button" class="button-modal button-ok"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-fail">
+    <div class="modal-container">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Упс... Что-то пошло не так</h2>
+        </div>
+        <div class="modal-body">    
+          <p>Не удалось отправить заявку. Пожалуйста, повтрите отправку еще раз</p>
+        </div>
+        <button type="button" class="button button-modal reservation__button">Забронировать</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
