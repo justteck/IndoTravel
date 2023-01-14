@@ -30,9 +30,9 @@ const animateMenuClose = () => {
 
 const menuControl = ({target}) => {
   if (target === menuBtn) {
-    requestAnimationFrame(animateMenuToggle);
+    animateMenuToggle();
   } else if (navigation.dataset.menu === 'true') {
-    requestAnimationFrame(animateMenuClose);
+    animateMenuClose();
   }
 };
 

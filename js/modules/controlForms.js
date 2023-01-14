@@ -1,8 +1,15 @@
-// count total price
-
 // imports
 import {makeCorrectEndings} from './correctDeclension.js';
 import {fetchRequest} from './fetchRequest.js';
+import {
+  getAllDataDB,
+  getToursDate,
+  getToursAmountPeople,
+} from './requestsDB.js';
+import {
+  renderModal,
+  closeModal,
+} from './modal.js';
 
 // forms
 const tourForm = document.querySelector('.tour__form');
@@ -17,7 +24,7 @@ const totalTourParametersElement = document.querySelector('.reservation__data');
 let tempCurrentPeople;
 let tempCurrentDates;
 
-// FUNCS
+// ----- FUNCS -----
 // set defaults for forms
 const setDefaultFormParameters = () => {
   totalPriceElement.innerHTML = '';
@@ -41,34 +48,26 @@ const setDefaultFormParameters = () => {
   footerInput.name = 'mail';
 };
 
-// get data from db
-const getAllDataDB = async () => {
-  const result = await fetch('/db/date.json');
+// disable form fields
+const disableFormFields = (form) => {
+  const selects = form.querySelectorAll('select');
+  const inputs = form.querySelectorAll('input');
+  const buttons = form.querySelectorAll('button');
 
-  const data = await result.json();
-
-  return data;
+  selects.forEach(item => item.disabled = true);
+  inputs.forEach(item => item.disabled = true);
+  buttons.forEach(item => item.disabled = true);
 };
 
-const getToursDate = async (date) => {
-  const result = await fetch('/db/date.json');
+// get min and max number of people
+const getAmountPeople = (array) => {
+  const min = Math.min(...array.map(obj => obj['min-people']));
+  const max = Math.max(...array.map(obj => obj['max-people']));
 
-  const data = await result.json();
-
-  return [data.find(obj => obj.date === date)];
-};
-
-const getToursAmountPeople = async (amountPeople) => {
-  const result = await fetch('/db/date.json');
-
-  const data = await result.json();
-
-  return data.reduce((prev, curr) => {
-    if (amountPeople >= curr['min-people'] &&
-        amountPeople <= curr['max-people']) {
-      return [...prev, curr];
-    } else return [...prev];
-  }, []);
+  return {
+    min,
+    max,
+  };
 };
 
 // work with forms options
@@ -78,16 +77,6 @@ const createOption = (data) => {
   option.value = option.textContent = data;
 
   return option;
-};
-
-const getAmountPeople = (array) => {
-  const min = Math.min(...array.map(obj => obj['min-people']));
-  const max = Math.max(...array.map(obj => obj['max-people']));
-
-  return {
-    min,
-    max,
-  };
 };
 
 const renderPeopleOptions = (array, select) => {
@@ -115,35 +104,32 @@ const renderDateOptions = (array, select) => {
   });
 };
 
-// modal control
-const closeModal = (modalWindow) => {
-  const hideModal = ({target}) => {
-    if (target.matches('.button-modal') ||
-        target.matches('.modal')) {
-      modalWindow.classList.remove('modal-active');
-
-      document.removeEventListener('click', hideModal);
-    }
-  };
-
-  document.addEventListener('click', hideModal);
-};
-
-// fetch callback
+// fetch callbacks
 const showResponseForm = (err, data) => {
-  const modalOK = document.querySelector('.modal-ok');
-  const modalFail = document.querySelector('.modal-fail');
+  const modalFail = document.querySelector('.overlay-fail');
+  const modalFailBtn = modalFail.querySelector('.modal__btn_fail');
+
+  const modalOK = document.querySelector('.overlay-ok');
+  const modalOKbtn = modalOK.querySelector('.modal__btn_ok');
+
+  const modalConfirm = document.querySelector('.overlay_confirm');
+
   if (err) {
     console.warn(err, data);
+    console.log('FAIL');
 
-    modalFail.classList.add('modal-active');
-    closeModal(modalFail);
+    modalConfirm.remove();
+    modalFail.classList.add('overlay-active');
+    closeModal(modalFail, modalFailBtn);
 
     return;
   }
+  console.log('OK');
 
-  modalOK.classList.add('modal-active');
-  closeModal(modalOK);
+  modalConfirm.remove();
+  modalOK.classList.add('overlay-active');
+  closeModal(modalOK, modalOKbtn);
+  disableFormFields(reservationForm);
 };
 
 const showResponseFooter = (err, data) => {
@@ -152,9 +138,9 @@ const showResponseFooter = (err, data) => {
   const footerInput = document.querySelector('.footer__input-wrap');
 
   const resizeBlock = () => {
-    footerInput.style.display = 'none';
     footerForm.style.minHeight = `${footerForm.offsetHeight}px`;
     footerForm.style.minWidth = `${footerForm.offsetWidth}px`;
+    footerInput.style.display = 'none';
   };
 
   if (err) {
@@ -247,7 +233,7 @@ const formFieldsControl = (formOne, formTwo) => {
   formOne.people.addEventListener('change', changeAmountPeople);
 };
 
-const formControl = (form) => {
+const showFormTotalPrice = (form) => {
   const defaultDate = form.dates.value;
   const defaultPeople = form.people.value;
 
@@ -269,34 +255,9 @@ const formControl = (form) => {
       totalPriceElement.textContent = `${tourObj[0].price * currentPeople} ₽`;
     }
   });
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-
-    const data = Object.fromEntries(formData);
-
-    fetchRequest('https://jsonplaceholder.typicode.com/posts', {
-      method: 'post',
-      callback: showResponseForm,
-      body: {
-        title: 'Booking',
-        body: {
-          name: data.name,
-          phone: data.phone,
-          date: data.dates,
-          people: data.people,
-        },
-      },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  });
 };
 
-const footerFormControl = () => {
+const showFooterFormResponse = () => {
   footerForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -333,10 +294,25 @@ const scrollToSecondForm = () => {
   });
 };
 
+// modal
 
-// execute
+const showModal = (form) => {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    const data = Object.fromEntries(formData);
+    data.price = form.querySelector('.reservation__price').textContent;
+
+    renderModal(data, 'css/modal.css');
+  });
+};
+
+// EXECUTE
 setDefaultFormParameters();
 
+// set form options on page load
 setFormOptions(
     tourForm,
     'dates',
@@ -361,11 +337,17 @@ setFormOptions(
     await getAllDataDB(),
     renderPeopleOptions);
 
-formControl(tourForm);
-formControl(reservationForm);
-footerFormControl();
+// forms control
+showFormTotalPrice(tourForm);
+showFormTotalPrice(reservationForm);
+showFooterFormResponse();
+showModal(reservationForm);
 
 formFieldsControl(tourForm, reservationForm);
 formFieldsControl(reservationForm, tourForm);
 
 scrollToSecondForm();
+
+export {
+  showResponseForm,
+};

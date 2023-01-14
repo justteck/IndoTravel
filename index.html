@@ -11,7 +11,6 @@
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/timer.css">
-  <link rel="stylesheet" href="css/modal.css">
   <script type="module" src="js/script.js"></script>
   <title>Indonesia</title>
 </head>
@@ -46,7 +45,7 @@
 
           <p class="hero__text">Действует скидка 20% на туры от 6&nbsp;человек</p>
 
-          <div class="hero__timer timer" data-timer-deadline="2022/12/27 17:50 UTC+3">
+          <div class="hero__timer timer" data-timer-deadline="2023/12/27 17:50 UTC+3">
             <p class="timer__title">До конца акции осталось:</p>
             <p class="timer__item timer__item_days">
               <span class="timer__count timer__count_days">2</span>
@@ -338,7 +337,7 @@
         </form>
       </div>
       <div class="footer__info">
-        <p class="footer__copy footer__info-text">© Indo Travel, 2021</p>
+        <p class="footer__copy footer__info-text">© Indo Travel, 2023</p>
         <div class="footer__design">
           <p class="footer__author footer__info-text">Design by Anastasia Ilina</p>
           <p class="footer__tg footer__info-text"><a href="https://tlgg.ru/@Mrshmallowww">Tg: @Mrshmallowww</a></p>
@@ -348,7 +347,35 @@
   </footer>
 
   <!-- modal -->
-  <div class="modal modal-ok">
+  <div class="overlay overlay-ok overlay-hidden">
+    <div class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal__title">Ваша заявка успешно отправлена</h2>
+        </div>   
+        <p class="modal__text">Наши менеджеры свяжутся с Вами в течение 3-х рабочих дней</p>
+        <div class="modal__button">
+          <button type="button" class="modal__btn modal__btn_ok">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay overlay-fail overlay-hidden">
+    <div class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal__title">Упс... Что-то пошло не так</h2>
+        </div>
+        <p class="modal__text">Не удалось отправить заявку. Пожалуйста, повтрите отправку еще раз</p>
+        <div class="modal__button">
+          <button type="button" class="modal__btn modal__btn_fail">Забронировать</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="modal modal-ok">
     <div class="modal-container">
       <div class="modal-content">
         <div class="modal-header">
@@ -374,6 +401,6 @@
         <button type="button" class="button button-modal reservation__button">Забронировать</button>
       </div>
     </div>
-  </div>
+  </div> -->
 </body>
 </html>

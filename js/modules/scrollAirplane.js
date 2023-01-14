@@ -53,12 +53,12 @@ const calcPositionPlane = () => {
 };
 
 const reversePlaneIcon = (direction) => {
+  plane.style.transition = '0.3s';
+
   if (direction === 'up') {
     plane.style.transform = '';
-    plane.style.transition = '0.3s';
   } else {
     plane.style.transform = 'rotate(0.5turn)';
-    plane.style.transition = '0.3s';
   }
 };
 
