@@ -54,6 +54,9 @@ const disableFormFields = (form) => {
   const inputs = form.querySelectorAll('input');
   const buttons = form.querySelectorAll('button');
 
+  form.reset();
+  selects[0].textContent = '';
+  selects[1].textContent = '';
   selects.forEach(item => item.disabled = true);
   inputs.forEach(item => item.disabled = true);
   buttons.forEach(item => item.disabled = true);
@@ -294,18 +297,46 @@ const scrollToSecondForm = () => {
   });
 };
 
+const controlCorrectFields = (form) => {
+  const regExpName = /[^а-яё\s]/ig;
+  const regExpPhone = /[^0-9+]/;
+  form.name.addEventListener('input', () => {
+    form.name.value = form.name.value.replace(regExpName, '');
+  });
+
+  form.phone.addEventListener('input', () => {
+    form.phone.value = form.phone.value.replace(regExpPhone, '');
+  });
+};
+
+const isFormNameCorrect = (form) => {
+  const regExp = /(\s+)?([а-яА-Я]+)(\s+)([а-яА-Я]+)(\s+)([а-яА-Я]+)(\s*)/i;
+  return regExp.test(form.name.value);
+};
+
 // modal
 
 const showModal = (form) => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    if (isFormNameCorrect(form)) {
+      const formData = new FormData(e.target);
 
-    const data = Object.fromEntries(formData);
-    data.price = form.querySelector('.reservation__price').textContent;
+      const data = Object.fromEntries(formData);
+      data.price = form.querySelector('.reservation__price').textContent;
 
-    renderModal(data, 'css/modal.css');
+      renderModal(data, 'css/modal.css');
+    } else {
+      const currentName = form.name.value;
+      form.name.value = 'ФИО некорректно';
+      form.name.style.color = 'red';
+
+      setTimeout(() => {
+        form.name.value = currentName;
+        form.name.style.color = '';
+      }, 3000);
+    }
   });
 };
 
@@ -347,6 +378,8 @@ formFieldsControl(tourForm, reservationForm);
 formFieldsControl(reservationForm, tourForm);
 
 scrollToSecondForm();
+
+controlCorrectFields(reservationForm);
 
 export {
   showResponseForm,
