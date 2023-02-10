@@ -16,6 +16,7 @@ planeWrapper.style.cssText = `
   bottom: 0;
   width: 50px;
   height: 50px;
+  z-index: 50;
 `;
 
 plane.style.cssText = `

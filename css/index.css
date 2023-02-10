@@ -494,6 +494,16 @@ p {
 		margin: 0;
 }
 
+.error-label {
+  padding: 5px;
+  height: 10px;
+}
+
+.album__image {
+  margin: 0 auto;
+  width: 100%;
+}
+
 .container {
 		max-width: 1300px;
 		padding: 0 60px;
@@ -1487,6 +1497,9 @@ p {
 
 .album__slider {
 		position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .album__item {
@@ -1510,7 +1523,7 @@ p {
 }
 
 .album__left:focus {
-		background-color: #AFAFAF;
+		/* background-color: #AFAFAF; */
 }
 
 .album__left:active {
@@ -1537,7 +1550,7 @@ p {
 }
 
 .album__right:focus {
-		background-color: #AFAFAF;
+		/* background-color: #AFAFAF; */
 }
 
 .album__right:active {
@@ -1600,6 +1613,7 @@ p {
 		-ms-flex-pack: justify;
 		justify-content: space-between;
 		width: 100%;
+    min-height: 60px;
 }
 
 .reservation__select {
@@ -2644,7 +2658,7 @@ p {
 
 		.reservation__select-wrapper {
 				width: 100%;
-				height: 99px;
+				min-height: 70px;
 		}
 
 		.reservation__input-wrap {
@@ -3131,7 +3145,7 @@ p {
 
 		.reservation__input-wrap {
 				min-width: 250px;
-				height: 70px;
+				min-height: 90px;
 		}
 
 		.reservation__label {

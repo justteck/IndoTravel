@@ -41,6 +41,7 @@ const confirmModal = (data, btn) => {
 };
 
 const renderModal = async (data, url) => {
+  console.log('sd', data);
   await loadStyle(url);
 
   const {

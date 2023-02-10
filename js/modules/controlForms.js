@@ -10,6 +10,8 @@ import {
   renderModal,
   closeModal,
 } from './modal.js';
+import '../inputmask.min.js';
+import '../just-validate.production.min.js';
 
 // forms
 const tourForm = document.querySelector('.tour__form');
@@ -29,20 +31,6 @@ let tempCurrentDates;
 const setDefaultFormParameters = () => {
   totalPriceElement.innerHTML = '';
   totalTourParametersElement.innerHTML = '';
-
-  const selects = document.querySelectorAll('.reservation__select');
-  selects.forEach(item => {
-    item.required = true;
-  });
-
-  const formName = document.querySelector('.reservation__input_name');
-  formName.required = true;
-  formName.name = 'name';
-
-  const formPhone = document.querySelector('#reservation__phone');
-  formPhone.required = true;
-  formPhone.type = 'tel';
-  formPhone.name = 'phone';
 
   const footerInput = document.querySelector('.footer__input');
   footerInput.name = 'mail';
@@ -297,47 +285,73 @@ const scrollToSecondForm = () => {
   });
 };
 
-const controlCorrectFields = (form) => {
-  const regExpName = /[^а-яё\s]/ig;
-  const regExpPhone = /[^0-9+]/;
-  form.name.addEventListener('input', () => {
-    form.name.value = form.name.value.replace(regExpName, '');
-  });
+const validateForm = (form) => {
+  //phone mask
+  const telMask = new Inputmask('+7 (999)-999-99-99');
+  telMask.mask('#reservation__phone');
 
-  form.phone.addEventListener('input', () => {
-    form.phone.value = form.phone.value.replace(regExpPhone, '');
-  });
-};
+  //name mask
+  const nameMask = new Inputmask({
+    mask: '*{1,} *{1,} *{1,}',
+    placeholder: '',
+    definitions: {
+      '*': {
+        validator: "[а-яА-Яё-]",
+      },
+  }});
+  nameMask.mask('#reservation__name');
 
-const isFormNameCorrect = (form) => {
-  const regExp = /(\s+)?([а-яА-Я]+)(\s+)([а-яА-Я]+)(\s+)([а-яА-Я]+)(\s*)/i;
-  return regExp.test(form.name.value);
-};
-
-// modal
-
-const showModal = (form) => {
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    if (isFormNameCorrect(form)) {
+  //validate fields
+  const validate = new JustValidate(`.${form.className}`, {
+    errorLabelStyle: {
+      fontSize: '10px',
+      color: 'red'
+    }});
+  
+  validate
+    .addField('#reservation__date', [
+      {
+        rule: 'required',
+        errorMessage: 'Не выбраны даты'
+      },
+    ])
+    .addField('#reservation__people', [
+      {
+        rule: 'required',
+        errorMessage: 'Не выбрано количество человек'
+      },
+    ])
+    .addField('#reservation__name', [
+      {
+        rule: 'required',
+        errorMessage: 'Введите ФИО'
+      },
+      {
+        rule: 'customRegexp',
+        value: /(\s+)?([а-яА-Я]+)(\s+)([а-яА-Я]+)(\s+)([а-яА-Я]+)(\s*)/i,
+        errorMessage: 'Введите корректное ФИО'
+      }
+    ])
+    .addField('#reservation__phone', [
+      {
+        rule: 'required',
+        errorMessage: 'Введите телефон'
+      },
+      {
+        validator() {
+          const phone = document.querySelector('#reservation__phone').inputmask.unmaskedvalue();
+          return !!(Number(phone) && phone.length === 10); 
+        },
+        errorMessage: 'Некорректный телефон'
+      },
+    ])
+    .onSuccess(e => {
       const formData = new FormData(e.target);
-
       const data = Object.fromEntries(formData);
       data.price = form.querySelector('.reservation__price').textContent;
 
       renderModal(data, 'css/modal.css');
-    } else {
-      const currentName = form.name.value;
-      form.name.value = 'ФИО некорректно';
-      form.name.style.color = 'red';
-
-      setTimeout(() => {
-        form.name.value = currentName;
-        form.name.style.color = '';
-      }, 3000);
-    }
-  });
+    });
 };
 
 // EXECUTE
@@ -372,14 +386,13 @@ setFormOptions(
 showFormTotalPrice(tourForm);
 showFormTotalPrice(reservationForm);
 showFooterFormResponse();
-showModal(reservationForm);
 
 formFieldsControl(tourForm, reservationForm);
 formFieldsControl(reservationForm, tourForm);
 
 scrollToSecondForm();
 
-controlCorrectFields(reservationForm);
+validateForm(reservationForm);
 
 export {
   showResponseForm,
